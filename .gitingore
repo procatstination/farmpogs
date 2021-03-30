@@ -27,4 +27,11 @@ share/python-wheels/
 MANIFEST
 
 # Ignore out folder
-./out
+out
+clips
+
+#video +chats files
+*.mp3
+*.mp4
+*.mkv
+*.logs
