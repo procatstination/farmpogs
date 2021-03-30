@@ -18,7 +18,7 @@ echo 'Downloading chat log'
 tcd --channel hasanabi --video $vodID --format irc --output ./ --first=1 
 
 #Rename chat file
-mv *.log $vodID.log
+mv *.log chat.log
 
 
 echo 'Downloading vod'
@@ -26,4 +26,4 @@ twitch-dl download $vodID --overwrite -q 720p60 #not using source to speed up do
 # get title and rename
 
 #Rename vod file
-mv *.mkv $vodID.mkv
+mv *.mkv vod.mkv
