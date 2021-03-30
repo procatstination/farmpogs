@@ -1,14 +1,14 @@
+import argparse
+import datetime
 import json
-import pandas as pd
+import os.path
 import re
 import time
-import moviepy.editor as mpy
-from moviepy.editor import ipython_display
-import moviepy.video.fx.all as vfx
-import datetime
-import argparse
-import os.path
 
+import moviepy.editor as mpy
+import moviepy.video.fx.all as vfx
+import pandas as pd
+from moviepy.editor import ipython_display
 
 VOD_ID = 963962409
 VOD_PATH = "./out"
@@ -34,10 +34,8 @@ def clipIt(vod, momentTime, sample_window):
         f"Found most engaged moment at: {startTime} to {endTime}",
     )
 
-    # Clip it
     clip = vod.subclip(startTime, endTime)
 
-    #%%
     # Add fade in and fade out
     FADE_DURATION = 3
     clip = vfx.fadeout(clip, FADE_DURATION)
@@ -61,13 +59,14 @@ def gatherChat(chat_path, start_time, end_time):
 
             data[cnt] = {"timestamp": timestamp, "user": user, "message": message}
 
-            if cnt % 10000 == 1:
+            if cnt % 100000 == 1:
                 print(
                     f"Anaysed messages: {cnt}",
                 )
 
     df_chat = pd.DataFrame.from_dict(data, "index")
-
+    print("Sample messages")
+    print(df_chat.tail())
     # Time format series
     df_chat["timestamp"] = pd.to_datetime(
         df_chat["timestamp"].str.strip(), format=TIME_FORMAT
@@ -76,11 +75,12 @@ def gatherChat(chat_path, start_time, end_time):
     df_chat = df_chat[
         df_chat["timestamp"] > pd.to_datetime(start_time, format=TIME_FORMAT)
     ]
+    print(pd.to_datetime(start_time, format=TIME_FORMAT))
     df_chat = df_chat[
         df_chat["timestamp"] < pd.to_datetime(end_time, format=TIME_FORMAT)
     ]
+    print("Sample messages")
     print(df_chat.head())
-
     return df_chat
 
 
@@ -111,18 +111,18 @@ def main(args):
     print("Formatting chat data")
     chat_path = f"{VOD_PATH}/{str(VOD_ID)}/chat.log"
     df_chat = gatherChat(chat_path, START_TIME_FILTER, END_TIME_FILTER)
-    # chat_path = VOD_PATH + str(VOD_ID) + "_chat.csv"
-    # df_chat.to_csv(chat_path)
 
-    # sample bins
+    # sample bin window to group by
     df_sample_chat = (
         df_chat.set_index("timestamp")
         .resample(str(SAMPLE_WINDOW) + "s")["message"]
         .agg(["sum", "count"])
     )
 
-    # Farm PogO's
-    emotes_interest = ["PogO", "KEKW", "WICKED", "D:"]
+    print(df_chat.head())
+
+    # Farm PogU's
+    emotes_interest = ["PogU", "KEKW", "WICKED", "D:"]
 
     # time of interest
     for emote in emotes_interest:
@@ -134,7 +134,7 @@ def main(args):
     # Gather clips
     # Pog moment
     pogMomentTime = (
-        df_sample_chat.sort_values(["PogO" + "_count"]).iloc[[-1]].index.tolist()[0]
+        df_sample_chat.sort_values(["PogU" + "_count"]).iloc[[-1]].index.tolist()[0]
     )
 
     # Funnist clip
@@ -160,7 +160,6 @@ def main(args):
     vod_file = f"{VOD_PATH}/{str(VOD_ID)}/vod.mkv"
     vod = mpy.VideoFileClip(vod_file)
 
-    # Generate a intro clip
     introClip = createIntroClip(INTRO_TITLE, vod.size)
 
     EDIT_WINDOW = 10
@@ -180,7 +179,7 @@ def main(args):
     concatClip = mpy.concatenate_videoclips(
         [introClip, pogClip, funnyClip, wickedClip, shockClip]
     )
-    EXPORT_FILE_PATH = "{CLIP_PATH}/previouslyClip.mp4"
+    EXPORT_FILE_PATH = f"{CLIP_PATH}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
 
