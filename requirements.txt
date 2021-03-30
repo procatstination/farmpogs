@@ -1,3 +1,4 @@
 moviepy==1.0.3
 pandas==1.2.3
 twitch-dl==1.15.0
+tcd==3.2.1
