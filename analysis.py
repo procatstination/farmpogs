@@ -11,7 +11,8 @@ import os.path
 
 
 VOD_ID = 963962409
-VOD_PATH = "./out/"
+VOD_PATH = "./out"
+CLIP_PATH = "./clips"
 START_TIME_FILTER = "00:00:00"
 END_TIME_FILTER = "00:30:00"
 TIME_FORMAT = "%H:%M:%S"
@@ -58,10 +59,6 @@ def gatherChat(chat_path, start_time, end_time):
             user = re.search(r"\<(.*?)\>", line).group(1)
             message = re.search(r"\>(.*)", line).group(1)
 
-            # df_chat = df_chat.append(
-            #     {"timestamp": timestamp, "user": user, "message": message},
-            #     ignore_index=True,
-            # )
             data[cnt] = {"timestamp": timestamp, "user": user, "message": message}
 
             if cnt % 10000 == 1:
@@ -112,7 +109,7 @@ def main(args):
 
     # Download vod
     print("Formatting chat data")
-    chat_path = VOD_PATH + str(VOD_ID) + ".log"
+    chat_path = f"{VOD_PATH}/{str(VOD_ID)}/chat.log"
     df_chat = gatherChat(chat_path, START_TIME_FILTER, END_TIME_FILTER)
     # chat_path = VOD_PATH + str(VOD_ID) + "_chat.csv"
     # df_chat.to_csv(chat_path)
@@ -160,7 +157,7 @@ def main(args):
 
     print("Editing vod clips")
     # Get the vod
-    vod_file = "./out/" + str(VOD_ID) + ".mkv"
+    vod_file = f"{VOD_PATH}/{str(VOD_ID)}/vod.mkv"
     vod = mpy.VideoFileClip(vod_file)
 
     # Generate a intro clip
@@ -169,21 +166,21 @@ def main(args):
     EDIT_WINDOW = 10
 
     pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW)
-    pogClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_pog.mp4")
+    pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/pog.mp4")
 
     funnyClip = clipIt(vod, funnyMomentTime, EDIT_WINDOW)
-    funnyClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_funny.mp4")
+    funnyClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/funny.mp4")
 
     wickedClip = clipIt(vod, wickedMomentTime, EDIT_WINDOW)
-    wickedClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_cool.mp4")
+    wickedClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}cool.mp4")
 
     shockClip = clipIt(vod, shockMomentTime, EDIT_WINDOW)
-    shockClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_shock.mp4")
+    shockClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}shock.mp4")
 
     concatClip = mpy.concatenate_videoclips(
         [introClip, pogClip, funnyClip, wickedClip, shockClip]
     )
-    EXPORT_FILE_PATH = "./clips/previouslyClip.mp4"
+    EXPORT_FILE_PATH = "{CLIP_PATH}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
 
