@@ -1,10 +1,9 @@
-# Farm pogos
+# Farm Pogs
 
-This will take a vod and create a 'previously' on type moment.
+This will take a [twitch](https://www.twitch.tv) vod  
+and create a short video 'previously' on type moment of all the chatters top momemnts according to the [emotes](https://betterttv.com/) chatters type.
 
-Right now it chooses a set of 4 emotes and find when this is used the most.
-
-It then edits these clips together to provide a summary of a vod to give a nice fun overview of best momements.
+Right now it chooses a set of 4 emotes and find when this is used the most then roughly joins those segments.
 
 # Example
 
