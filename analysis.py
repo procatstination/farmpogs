@@ -171,10 +171,10 @@ def main(args):
     funnyClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/funny.mp4")
 
     wickedClip = clipIt(vod, wickedMomentTime, EDIT_WINDOW)
-    wickedClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}cool.mp4")
+    wickedClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/cool.mp4")
 
     shockClip = clipIt(vod, shockMomentTime, EDIT_WINDOW)
-    shockClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}shock.mp4")
+    shockClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/shock.mp4")
 
     concatClip = mpy.concatenate_videoclips(
         [introClip, pogClip, funnyClip, wickedClip, shockClip]
