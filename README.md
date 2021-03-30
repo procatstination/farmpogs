@@ -1,11 +1,10 @@
 # Farm Pogs
 
-This will take a [twitch](https://www.twitch.tv) vod  
-and create a short video 'previously' on type moment of all the chatters top momemnts according to the [emotes](https://betterttv.com/) chatters type.
+This will take a [twitch](https://www.twitch.tv) vod and create a short video 'previously' on type moment of all the chatters top momemnts according to the [emotes](https://betterttv.com/) chatters type.
 
-Right now it chooses a set of 4 emotes and find when this is used the most then roughly joins those segments.
+Right now it chooses a set of 4 fixed emotes and find when this is used the most then roughly joins those segments.
 
-# Example
+# Example Usage
 
 First install the pip requirements prefeably in a virualenv
 
