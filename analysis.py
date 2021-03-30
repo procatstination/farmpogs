@@ -44,7 +44,7 @@ def clipIt(vod, momentTime, sample_window):
     return clip
 
 
-def gatherChat(chat_path):
+def gatherChat(chat_path, start_time, end_time):
     df_chat = pd.DataFrame(columns=["timestamp", "user", "message"])
     # Overall meta message data
     total_msgs = sum(1 for line in open(chat_path))
@@ -77,17 +77,17 @@ def gatherChat(chat_path):
     )
 
     df_chat = df_chat[
-        df_chat["timestamp"] > pd.to_datetime(START_TIME_FILTER, format=TIME_FORMAT)
+        df_chat["timestamp"] > pd.to_datetime(start_time, format=TIME_FORMAT)
     ]
     df_chat = df_chat[
-        df_chat["timestamp"] < pd.to_datetime(END_TIME_FILTER, format=TIME_FORMAT)
+        df_chat["timestamp"] < pd.to_datetime(end_time, format=TIME_FORMAT)
     ]
+    print(df_chat.head())
 
     return df_chat
 
 
-def createIntroClip(title):
-    screensize = (720, 460)
+def createIntroClip(title, screensize):
 
     introClip = mpy.TextClip(
         title,
@@ -113,7 +113,7 @@ def main(args):
     # Download vod
     print("Formatting chat data")
     chat_path = VOD_PATH + str(VOD_ID) + ".log"
-    df_chat = gatherChat(chat_path)
+    df_chat = gatherChat(chat_path, START_TIME_FILTER, END_TIME_FILTER)
     # chat_path = VOD_PATH + str(VOD_ID) + "_chat.csv"
     # df_chat.to_csv(chat_path)
 
@@ -164,22 +164,26 @@ def main(args):
     vod = mpy.VideoFileClip(vod_file)
 
     # Generate a intro clip
-    introClip = createIntroClip(INTRO_TITLE)
+    introClip = createIntroClip(INTRO_TITLE, vod.size)
 
     EDIT_WINDOW = 10
 
     pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW)
+    pogClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_pog.mp4")
 
     funnyClip = clipIt(vod, funnyMomentTime, EDIT_WINDOW)
+    funnyClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_funny.mp4")
 
     wickedClip = clipIt(vod, wickedMomentTime, EDIT_WINDOW)
+    wickedClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_cool.mp4")
 
     shockClip = clipIt(vod, shockMomentTime, EDIT_WINDOW)
+    shockClip.write_videofile(f"./clips/{str(VOD_ID)}_clips_shock.mp4")
 
     concatClip = mpy.concatenate_videoclips(
         [introClip, pogClip, funnyClip, wickedClip, shockClip]
     )
-    EXPORT_FILE_PATH = "./previouslyClip.mp4"
+    EXPORT_FILE_PATH = "./clips/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
 
