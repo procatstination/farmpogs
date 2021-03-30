@@ -1,14 +1,15 @@
-#!/bin/sh
+#!/bin/
 
-# first arg vod id
-
-while getopts v:q flag
+OPTIND=1     
+while getopts "v:q:s:e:" flag
 do
     case "${flag}" in
-        v) vodID=${OPTARG};
+        v) vodID=${OPTARG} ;;
+        q) quality=${OPTARG} ;;
+        s) start=${OPTARG} ;;
+        e) end=${OPTARG} ;;
     esac
 done
-echo "vodID: $vodID";
 
 mkdir ./out/$vodID
 mkdir ./clips/$vodID
@@ -21,7 +22,7 @@ tcd --video $vodID --format irc --output ./ --first=1
 mv *.log chat.log
 
 echo 'Downloading vod'
-twitch-dl download $vodID --overwrite -q source #not using source to speed up download
+twitch-dl download $vodID --quality $quality --start $start --end $end #not using source to speed up download
 # get title and rename
 
 #Rename vod file
