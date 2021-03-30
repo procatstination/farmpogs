@@ -106,6 +106,8 @@ def main(args):
     END_TIME_FILTER = args.end
     SAMPLE_WINDOW = args.sample_window
     INTRO_TITLE = args.title
+    # Farm PogU's
+    emotes_interest = [s.strip() for s in args.emotes.split(",")]
 
     # Download vod
     print("Formatting chat data")
@@ -121,64 +123,40 @@ def main(args):
 
     print(df_chat.head())
 
-    # Farm PogU's
-    emotes_interest = ["PogU", "KEKW", "WICKED", "D:"]
+    clips = []
 
-    # time of interest
-    for emote in emotes_interest:
-        df_sample_chat[emote + "_count"] = df_sample_chat["sum"].apply(
-            lambda msg: len(re.findall(emote, msg))
-        )
-
-    print("Gathering pog moments")
-    # Gather clips
-    # Pog moment
-    pogMomentTime = (
-        df_sample_chat.sort_values(["PogU" + "_count"]).iloc[[-1]].index.tolist()[0]
-    )
-
-    # Funnist clip
-    funnyMomentTime = (
-        df_sample_chat.sort_values(["KEKW" + "_count"]).iloc[[-1]].index.tolist()[0]
-    )
-
-    # WICKED momemnt
-    wickedMomentTime = (
-        df_sample_chat.sort_values(["WICKED" + "_count"]).iloc[[-1]].index.tolist()[0]
-    )
-
-    # End with a shocker as hopefully this is a clifhanger
-    # or a top 1 anime betrayals...
-    shockMomentTime = (
-        df_sample_chat.sort_values(["D:" + "_count"]).iloc[[-1]].index.tolist()[0]
-    )
-
-    # TODO: check if times overlap to much and if so choose the next top
-
-    print("Editing vod clips")
     # Get the vod
     vod_file = f"{VOD_PATH}/{str(VOD_ID)}/vod.mkv"
     vod = mpy.VideoFileClip(vod_file)
 
     introClip = createIntroClip(INTRO_TITLE, vod.size)
 
+    clips.append(introClip)
+
     EDIT_WINDOW = 10
+    # time of interest
+    for emote in emotes_interest:
+        df_sample_chat[emote + "_count"] = df_sample_chat["sum"].apply(
+            lambda msg: len(re.findall(emote, msg))
+        )
 
-    pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW)
-    pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/pog.mp4")
+        print(f"Gathering pog moment: {emote}")
+        # Gather clips
+        # Pog moment
+        pogMomentTime = (
+            df_sample_chat.sort_values([emote + "_count"]).iloc[[-1]].index.tolist()[0]
+        )
 
-    funnyClip = clipIt(vod, funnyMomentTime, EDIT_WINDOW)
-    funnyClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/funny.mp4")
+        pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW)
+        pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
+        print(len(clips))
+        clips.append(pogClip)
 
-    wickedClip = clipIt(vod, wickedMomentTime, EDIT_WINDOW)
-    wickedClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/cool.mp4")
+    # TODO: check if times overlap to much and if so choose the next top
 
-    shockClip = clipIt(vod, shockMomentTime, EDIT_WINDOW)
-    shockClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/shock.mp4")
+    print("Editing vod clips")
 
-    concatClip = mpy.concatenate_videoclips(
-        [introClip, pogClip, funnyClip, wickedClip, shockClip]
-    )
+    concatClip = mpy.concatenate_videoclips(clips)
     EXPORT_FILE_PATH = f"{CLIP_PATH}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
@@ -191,7 +169,10 @@ if __name__ == "__main__":
         "--vodID", help="vodID downloaded for both .log and .mkv", type=int
     )
     parser.add_argument(
-        "--start", help="start time to clip chat + vod. Time format %H:%M:%S", type=str
+        "--start",
+        default="00:00:00",
+        help="start time to clip chat + vod. Time format %H:%M:%S",
+        type=str,
     )
     parser.add_argument(
         "--end", help="end time to chat. Time format %H:%M:%S", type=str
@@ -212,7 +193,12 @@ if __name__ == "__main__":
         help="A title to summarize the momemnts",
         type=str,
     )
-
+    parser.add_argument(
+        "--emotes",
+        default="PogU,KEKW,WICKED,D:",
+        help="Comma sperated top emotes to clip together",
+        type=str,
+    )
     args = parser.parse_args()
 
     main(args)
