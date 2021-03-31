@@ -1,8 +1,8 @@
 # Farm Pogs
 
-This will take a [twitch](https://www.twitch.tv) vod and create a short video 'previously' based on chatters top momemnts according to the [emotes](https://betterttv.com/) chatters send.
+This will take a [twitch](https://www.twitch.tv) vod and create a short video 'previously' based on chatters top moments according to the [emotes](https://betterttv.com/) chatters send.
 
-Right now it chooses a set of 4 fixed emotes and find when this is used the most then roughly joins those segments.
+You can pass a series of emotes to search the vod and they will clip these together.
 
 # Example Usage
 
@@ -21,8 +21,8 @@ alternatively if avalaible move the vod file into `'./out/963962409/vod.mkv'` an
 Finally run the analysis script below to extract all those pog momments!
 You must provide the start and end time to cover.
 
-`$ python analysis.py --vodID 963962409 --start "02:30:00" --end "10:50:28"`
+`$ python analysis.py --vodID 963962409 --start "02:30:00" --end "10:50:28" --emotes PogU,KEKW,WICKED,D:`
 
-The clips will be outputed to a `'./clips'` folder.
+The clips will be outputed to a `'./clips'` folder for other editing needs.
 
-The core edit is `'./clips/previouslyClip.mp4'`
+The core edit is `'./clips/963962409/previouslyClip.mp4'`

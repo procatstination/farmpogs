@@ -208,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--emotes",
         default="PogU,KEKW,WICKED,D:",
-        help="Comma sperated top emotes to clip together",
+        help="Comma sperated top emotes to clip together. The order of the emotes determine the order they will be edited together",
         type=str,
     )
     args = parser.parse_args()
