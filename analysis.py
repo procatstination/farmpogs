@@ -7,6 +7,8 @@ import time
 
 import moviepy.editor as mpy
 import moviepy.video.fx.all as vfx
+import moviepy.audio.fx.all as afx
+
 import pandas as pd
 from moviepy.editor import ipython_display
 
@@ -19,7 +21,7 @@ SAMPLE_WINDOW = 15  # in seconds
 INTRO_TITLE = "Previously..."
 
 
-def clipIt(vod, momentTime, sample_window, VOD_ID=None):
+def clipIt(vod, momentTime, sample_window, VOD_ID=None, suspenseSound=None):
     """
     returns vfx clip with fade
     """
@@ -47,6 +49,16 @@ def clipIt(vod, momentTime, sample_window, VOD_ID=None):
     FADE_DURATION = 3
     clip = vfx.fadeout(clip, FADE_DURATION)
     clip = vfx.fadein(clip, FADE_DURATION)
+
+    if suspenseSound:
+        # fade in some audio sound
+        audioclip = mpy.AudioFileClip(suspenseSound).set_duration(sample_window)
+
+        audioclip = afx.audio_fadeout(audioclip, FADE_DURATION)
+        audioclip = afx.audio_fadein(audioclip, round(FADE_DURATION * 2))
+
+        clipAudio = mpy.CompositeAudioClip([clip.audio, audioclip])
+        clip.audio = clipAudio
 
     return clip
 
@@ -79,7 +91,6 @@ def gatherChat(chat_path, start_time, end_time):
     df_chat["timestamp"] = pd.to_datetime(
         df_chat["timestamp"].str.strip(), format=TIME_FORMAT
     )
-
     df_chat = df_chat[
         df_chat["timestamp"] > pd.to_datetime(start_time, format=TIME_FORMAT)
     ]
@@ -113,6 +124,7 @@ def main(args):
     END_TIME_FILTER = args.end
     SAMPLE_WINDOW = args.sample_window
     INTRO_TITLE = args.title
+    SUSPENSE_FILE = args.suspense
     # Farm PogU's
     emotes_interest = [s.strip() for s in args.emotes.split(",")]
 
@@ -152,9 +164,9 @@ def main(args):
             df_sample_chat.sort_values([emote + "_count"]).iloc[[-1]].index.tolist()[0]
         )
 
-        pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW, VOD_ID)
+        clip = clipIt(vod, pogMomentTime, EDIT_WINDOW, VOD_ID, SUSPENSE_FILE)
         # pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
-        clips.append(pogClip)
+        clips.append(clip)
 
     # deletin vod to free up space
     del vod
@@ -164,14 +176,14 @@ def main(args):
 
     concatClip = mpy.concatenate_videoclips(clips)
     EXPORT_FILE_PATH = f"{CLIP_PATH}/{str(VOD_ID)}/previouslyClip.mp4"
-    concatClip.write_videofile(EXPORT_FILE_PATH)
+    # concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
     del concatClip
 
     # exporting clips later
     print("Exporting clips")
     for clip, emote in zip(clips, emotes_interest):
-        pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
+        clip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
 
 
 if __name__ == "__main__":
@@ -209,6 +221,12 @@ if __name__ == "__main__":
         "--emotes",
         default="PogU,KEKW,WICKED,D:",
         help="Comma sperated top emotes to clip together. The order of the emotes determine the order they will be edited together",
+        type=str,
+    )
+    parser.add_argument(
+        "--suspense",
+        default=None,
+        help="Mix with a sound file with a suspense between clips. Provide a path to soundfile as an arg",
         type=str,
     )
     args = parser.parse_args()
