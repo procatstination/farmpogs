@@ -37,9 +37,11 @@ def clipIt(vod, momentTime, sample_window, VOD_ID=None):
 
     # Add watermark
     if VOD_ID:
-        txt_clip = TextClip(f"twitch.tv/videos/{VOD_ID}", fontsize=14, color="white")
-        txt_clip = txt_clip.set_pos("bottom")
-        clip = CompositeVideoClip([clip, txt_clip])
+        txt_clip = mpy.TextClip(
+            f"twitch.tv/videos/{VOD_ID}", fontsize=14, color="white"
+        )
+        txt_clip = txt_clip.set_pos("bottom").set_duration(sample_window)
+        clip = mpy.CompositeVideoClip([clip, txt_clip])
 
     # Add fade in and fade out
     FADE_DURATION = 3
@@ -127,8 +129,6 @@ def main(args):
         .agg(["sum", "count"])
     )
 
-    print(df_chat.head())
-
     clips = []
 
     # Get the vod
@@ -155,7 +155,6 @@ def main(args):
 
         pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW, VOD_ID)
         pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
-        print(len(clips))
         clips.append(pogClip)
 
     # TODO: check if times overlap to much and if so choose the next top
