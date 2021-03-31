@@ -163,12 +163,12 @@ def main(args):
     print("Editing vod clips")
 
     concatClip = mpy.concatenate_videoclips(clips)
-    EXPORT_FILE_PATH = f"{CLIP_PATH}/previouslyClip.mp4"
+    EXPORT_FILE_PATH = f"{CLIP_PATH}/{str(VOD_ID)}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
     del concatClip
 
-    #exporting clips later 
+    # exporting clips later
     print("Exporting clips")
     for clip, emote in zip(clips, emotes_interest):
         pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
