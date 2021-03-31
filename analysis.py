@@ -10,7 +10,6 @@ import moviepy.video.fx.all as vfx
 import pandas as pd
 from moviepy.editor import ipython_display
 
-VOD_ID = 963962409
 VOD_PATH = "./out"
 CLIP_PATH = "./clips"
 START_TIME_FILTER = "00:00:00"
@@ -20,7 +19,7 @@ SAMPLE_WINDOW = 15  # in seconds
 INTRO_TITLE = "Previously..."
 
 
-def clipIt(vod, momentTime, sample_window):
+def clipIt(vod, momentTime, sample_window, VOD_ID=None):
     """
     returns vfx clip with fade
     """
@@ -36,10 +35,17 @@ def clipIt(vod, momentTime, sample_window):
 
     clip = vod.subclip(startTime, endTime)
 
+    # Add watermark
+    if VOD_ID:
+        txt_clip = TextClip(f"twitch.tv/videos/{VOD_ID}", fontsize=14, color="white")
+        txt_clip = txt_clip.set_pos("bottom")
+        clip = CompositeVideoClip([clip, txt_clip])
+
     # Add fade in and fade out
     FADE_DURATION = 3
     clip = vfx.fadeout(clip, FADE_DURATION)
     clip = vfx.fadein(clip, FADE_DURATION)
+
     return clip
 
 
@@ -147,7 +153,7 @@ def main(args):
             df_sample_chat.sort_values([emote + "_count"]).iloc[[-1]].index.tolist()[0]
         )
 
-        pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW)
+        pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW, VOD_ID)
         pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
         print(len(clips))
         clips.append(pogClip)
