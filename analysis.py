@@ -176,7 +176,7 @@ def main(args):
 
     concatClip = mpy.concatenate_videoclips(clips)
     EXPORT_FILE_PATH = f"{CLIP_PATH}/{str(VOD_ID)}/previouslyClip.mp4"
-    # concatClip.write_videofile(EXPORT_FILE_PATH)
+    concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
     del concatClip
 
