@@ -73,8 +73,8 @@ def gatherChat(chat_path, start_time, end_time):
                 )
 
     df_chat = pd.DataFrame.from_dict(data, "index")
-    print("Sample messages")
-    print(df_chat.tail())
+    # print("Sample messages")
+    # print(df_chat.tail())
     # Time format series
     df_chat["timestamp"] = pd.to_datetime(
         df_chat["timestamp"].str.strip(), format=TIME_FORMAT
@@ -83,12 +83,11 @@ def gatherChat(chat_path, start_time, end_time):
     df_chat = df_chat[
         df_chat["timestamp"] > pd.to_datetime(start_time, format=TIME_FORMAT)
     ]
-    print(pd.to_datetime(start_time, format=TIME_FORMAT))
     df_chat = df_chat[
         df_chat["timestamp"] < pd.to_datetime(end_time, format=TIME_FORMAT)
     ]
-    print("Sample messages")
-    print(df_chat.head())
+    # print("Sample messages")
+    # print(df_chat.head())
     return df_chat
 
 
@@ -154,9 +153,11 @@ def main(args):
         )
 
         pogClip = clipIt(vod, pogMomentTime, EDIT_WINDOW, VOD_ID)
-        pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
+        # pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
         clips.append(pogClip)
 
+    # deletin vod to free up space
+    del vod
     # TODO: check if times overlap to much and if so choose the next top
 
     print("Editing vod clips")
@@ -165,6 +166,12 @@ def main(args):
     EXPORT_FILE_PATH = f"{CLIP_PATH}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
+    del concatClip
+
+    #exporting clips later 
+    print("Exporting clips")
+    for clip, emote in zip(clips, emotes_interest):
+        pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
 
 
 if __name__ == "__main__":
