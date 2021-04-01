@@ -6,18 +6,18 @@ do
     case "${flag}" in
         v) vodID=${OPTARG} ;;
         q) quality=${OPTARG} ;;
+        o) output_path=${OPTARG} ;;
     esac
 done
 
-mkdir ./out/$vodID
-mkdir ./clips/$vodID
+mkdir ${output_path}/out/$vodID
 
-cd ./out/$vodID
+cd ${output_path}/out/$vodID
 echo 'Downloading chat log'
 tcd --video $vodID --format irc --output ./ --first=1 
 
 #Rename chat file
-#mv *.log chat.log
+mv *.log chat.log
 
 echo 'Downloading vod'
 twitch-dl download $vodID --quality $quality
