@@ -5,20 +5,13 @@ import os.path
 import re
 import time
 
+import moviepy.audio.fx.all as afx
 import moviepy.editor as mpy
 import moviepy.video.fx.all as vfx
-import moviepy.audio.fx.all as afx
-
 import pandas as pd
 from moviepy.editor import ipython_display
 
-VOD_PATH = "./out"
-CLIP_PATH = "./clips"
-START_TIME_FILTER = "00:00:00"
-END_TIME_FILTER = "00:30:00"
 TIME_FORMAT = "%H:%M:%S"
-SAMPLE_WINDOW = 15  # in seconds
-INTRO_TITLE = "Previously..."
 
 
 def clipIt(vod, momentTime, sample_window, VOD_ID=None, suspenseSound=None):
@@ -125,8 +118,8 @@ def main(args):
     SAMPLE_WINDOW = args.sample_window
     INTRO_TITLE = args.title
     SUSPENSE_FILE = args.suspense
-    # Farm PogU's
-    emotes_interest = [s.strip() for s in args.emotes.split(",")]
+    OUTPUT_PATH = args.output_path
+    VOD_PATH = args.input_path
 
     # Download vod
     print("Formatting chat data")
@@ -151,6 +144,9 @@ def main(args):
     clips.append(introClip)
 
     EDIT_WINDOW = 10
+    # Gather pogs emotes
+    emotes_interest = [s.strip() for s in args.emotes.split(",")]
+
     # time of interest
     for emote in emotes_interest:
         df_sample_chat[emote + "_count"] = df_sample_chat["sum"].apply(
@@ -159,31 +155,30 @@ def main(args):
 
         print(f"Gathering pog moment: {emote}")
         # Gather clips
-        # Pog moment
         pogMomentTime = (
             df_sample_chat.sort_values([emote + "_count"]).iloc[[-1]].index.tolist()[0]
         )
 
         clip = clipIt(vod, pogMomentTime, EDIT_WINDOW, VOD_ID, SUSPENSE_FILE)
-        # pogClip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
+        # pogClip.write_videofile(f"{OUTPUT_PATH}/{str(VOD_ID)}/{emote}.mp4")
         clips.append(clip)
 
-    # deletin vod to free up space
+    # deletin vod to free up mem
     del vod
     # TODO: check if times overlap to much and if so choose the next top
 
     print("Editing vod clips")
 
     concatClip = mpy.concatenate_videoclips(clips)
-    EXPORT_FILE_PATH = f"{CLIP_PATH}/{str(VOD_ID)}/previouslyClip.mp4"
+    EXPORT_FILE_PATH = f"{OUTPUT_PATH}/{str(VOD_ID)}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
     del concatClip
 
-    # exporting clips later
+    # exporting each clip
     print("Exporting clips")
     for clip, emote in zip(clips, emotes_interest):
-        clip.write_videofile(f"{CLIP_PATH}/{str(VOD_ID)}/{emote}.mp4")
+        clip.write_videofile(f"{OUTPUT_PATH}/{str(VOD_ID)}/{emote}.mp4")
 
 
 if __name__ == "__main__":
@@ -202,11 +197,17 @@ if __name__ == "__main__":
         "--end", help="end time to chat. Time format %H:%M:%S", type=str
     )
     parser.add_argument(
+        "--input-path", help="Path to input files", default="./out", type=str
+    )
+    parser.add_argument(
+        "--output-path", help="Path to output files", default="./clips", type=str
+    )
+    parser.add_argument(
         "--sample_window",
         nargs="?",
         const=1,
         default=15,
-        help="Size of sample window per moment. In seconds",
+        help="Size of sample window to capture per moment. In seconds",
         type=int,
     )
     parser.add_argument(
@@ -214,7 +215,7 @@ if __name__ == "__main__":
         nargs="?",
         const=1,
         default="Previously...",
-        help="A title to summarize the momemnts",
+        help="A title to summarize the moments",
         type=str,
     )
     parser.add_argument(
