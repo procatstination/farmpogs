@@ -170,9 +170,12 @@ def main(args):
     # TODO: check if times overlap to much and if so choose the next top
 
     print("Editing vod clips")
+    OUTPUT_PATH_VOD = f"{OUTPUT_PATH}/{str(VOD_ID)}"
+    if not os.path.exists(OUTPUT_PATH_VOD):
+        os.makedirs(OUTPUT_PATH_VOD)
 
     concatClip = mpy.concatenate_videoclips(clips)
-    EXPORT_FILE_PATH = f"{OUTPUT_PATH}/{str(VOD_ID)}/previouslyClip.mp4"
+    EXPORT_FILE_PATH = f"{OUTPUT_PATH_VOD}/previouslyClip.mp4"
     concatClip.write_videofile(EXPORT_FILE_PATH)
     print("Previously on clip saved to: ", EXPORT_FILE_PATH)
     del concatClip
@@ -180,7 +183,7 @@ def main(args):
     # exporting each clip
     print("Exporting clips")
     for clip, emote in zip(clips, emotes_interest):
-        clip.write_videofile(f"{OUTPUT_PATH}/{str(VOD_ID)}/{emote}.mp4")
+        clip.write_videofile(f"{OUTPUT_PATH_VOD}/{emote}.mp4")
 
 
 if __name__ == "__main__":
