@@ -149,8 +149,10 @@ def main(args):
 
     # time of interest
     for emote in emotes_interest:
-        df_sample_chat[emote + "_count"] = df_sample_chat["sum"].apply(
-            lambda msg: len(re.findall(emote, msg))
+        df_sample_chat[emote + "_count"] = (
+            df_sample_chat["sum"]
+            .astype(str)
+            .apply(lambda msg: len(re.findall(emote, msg)))
         )
 
         print(f"Gathering pog moment: {emote}")
