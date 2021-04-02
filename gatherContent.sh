@@ -1,7 +1,7 @@
 #!/bin/
 
 OPTIND=1     
-while getopts "v:q:s:e:" flag
+while getopts "v:q:o:" flag
 do
     case "${flag}" in
         v) vodID=${OPTARG} ;;

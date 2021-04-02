@@ -12,7 +12,7 @@ First install the pip requirements prefeably in a virualenv
 
 Next execute the gatherContent.sh script below and pass the VODID of twitch stream found within the url: `https://www.twitch.tv/videos/963962409`
 
-`$ bash gatherContent.sh -v 963962409 -q source`
+`$ bash gatherContent.sh -v 963962409 -q source -o .`
 
 This is the longest part of the process as its downloading the a quality vod and all the chat logs.
 
